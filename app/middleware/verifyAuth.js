@@ -6,7 +6,6 @@ const {
 
 require('dotenv').config()
 
-dotenv.config();
 
 const verifyToken = async (req, res, next) => {
     const {token} = req.headers;
