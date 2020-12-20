@@ -5,6 +5,7 @@ const port = 3000
 const cors = require ('cors');
 var userRoute = require ('./app/routes/userRoute');
 var dompetRoute = require('./app/routes/dompetRoute');
+var inRouter = require('./app/routes/inRouter');
 
 app.use(cors());
 app.use(bodyParser.json())
@@ -15,7 +16,7 @@ app.use(
 )
 app.use('/api', userRoute);
 app.use('/api', dompetRoute);
-
+app.use('/api', inRouter);
 
 
 app.get('/', (request, response) => {
