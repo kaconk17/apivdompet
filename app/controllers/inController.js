@@ -87,7 +87,7 @@ const getAllIn = async (req, res) => {
   }
   const getDompetQuery = 'SELECT * FROM tb_dompet WHERE id_user = $1 AND id_dompet = $2';
 
-  const getInQuery = 'SELECT * FROM tb_in WHERE id_dompet = $1 AND tgl_in BETWEEN $1 AND $2 ORDER BY tgl_in DESC';
+  const getInQuery = 'SELECT * FROM tb_in WHERE id_dompet = $1 AND tgl_in BETWEEN $2 AND $3 ORDER BY tgl_in DESC';
 
   const values = [
         dompetId,
@@ -95,14 +95,14 @@ const getAllIn = async (req, res) => {
         tgl2
   ];
   try {
-    const { rows } = await pool.query(getDompetQuery, [user_id, dompetId]);
-    const dbResponse = rows[0];
+    const response = await pool.query(getDompetQuery, [user_id, dompetId]);
+    const dbResponse = response.rows[0];
     if (!dbResponse) {
         errorMessage.error = 'Dompet tidak ditemukan';
         return res.status(status.notfound).send(errorMessage);
       }
-      const { res } = await pool.query(getInQuery, values);
-    const Response = res;
+    const {rows} = await pool.query(getInQuery, values);
+    const Response = rows;
 
       successMessage.data = Response;
       return res.status(status.success).send(successMessage);
@@ -129,8 +129,8 @@ const getIn = async (req, res) => {
         }
         var id_dompet = inResponse.id_dompet;
         const getDompetQuery = 'SELECT * FROM tb_dompet WHERE id_user = $1 AND id_dompet = $2';
-        const { res } = await pool.query(getDompetQuery, [user_id, id_dompet]);
-        const dbResponse = res[0];
+        const response = await pool.query(getDompetQuery, [user_id, id_dompet]);
+        const dbResponse = response.rows[0];
         if (!dbResponse) {
             errorMessage.error = 'ID tidak valid';
             return res.status(status.notfound).send(errorMessage);
@@ -142,8 +142,101 @@ const getIn = async (req, res) => {
       return res.status(status.error).send(errorMessage);
     }
   };
+
+  const updateIn = async (req, res) => {
+    const { inId } = req.params;
+    const { tgl_in, jumlah_in, ket_in } = req.body;
+  
+    const { user_id } = req.user;
+    if (empty(tgl_in, jumlah_in)) {
+      errorMessage.error = 'Tanggal & jumlah tidak boleh kosong';
+      return res.status(status.bad).send(errorMessage);
+    }
+    const finddompetQuery = 'SELECT a.id_in , a.tgl_in , a.jumlah , b.saldo, b.id_user FROM tb_in a JOIN tb_dompet b on a.id_dompet = b.id_dompet WHERE a.id_in = $1';
+    const updateInQuery = `UPDATE tb_in
+          SET tgl_in = $1, jumlah = $2, ket_in = $3, updated_at = $4 WHERE id_in = $5 returning *`;
+    
+    const addSaldoQuery = 'update tb_dompet set saldo = $1, updated_at = $2 where id_dompet  = $3 returning *';
+    
+    try {
+      const { rows } = await pool.query(finddompetQuery, [inId]);
+      const dbResponse = rows[0];
+      if (!dbResponse) {
+        errorMessage.error = 'Dompet tidak ditemukan';
+        return res.status(status.notfound).send(errorMessage);
+      }
+      if (dbResponse.id_user != user_id) {
+        errorMessage.error = 'Dompet tidak ditemukan';
+        return res.status(status.notfound).send(errorMessage);
+      }
+      
+      var saldo = parseFloat(dbResponse.saldo);
+      var in_awal = parseFloat(dbResponse.jumlah);
+      var jumlah = parseFloat(jumlah_in);
+      var newsaldo = (saldo - in_awal) + jumlah;
+      if (newsaldo < 0) {
+        errorMessage.error = 'Jumlah saldo tidak mencukupi';
+        return res.status(status.notfound).send(errorMessage);
+      }
+
+      const update_on = moment(new Date());
+      const values = [
+        tgl_in,
+        jumlah,
+        ket_in,
+        update_on,
+        inId,
+      ];
+      const response = await pool.query(updateInQuery, values);
+      const dbResult = response.rows[0];
+      await pool.query(addSaldoQuery,[newsaldo, update_on, dbResult.id_dompet]);
+
+      successMessage.data = dbResult;
+      return res.status(status.success).send(successMessage);
+    } catch (error) {
+      errorMessage.error = 'Operation was not successful';
+      return res.status(status.error).send(errorMessage);
+    }
+  };
+  const deleteIn = async (req, res) => {
+    const { inId } = req.params;
+    const { user_id } = req.user;
+    const finddompetQuery = 'SELECT a.id_in , a.tgl_in , a.jumlah , b.saldo, b.id_user FROM tb_in a JOIN tb_dompet b on a.id_dompet = b.id_dompet WHERE a.id_in = $1';
+    const deleteInQuery = 'DELETE FROM tb_in WHERE id_in = $1 returning *';
+    const addSaldoQuery = 'update tb_dompet set saldo = $1, updated_at = $2 where id_dompet  = $3 returning *';
+    try {
+      const { rows } = await pool.query(finddompetQuery, [inId]);
+      const dbResponse = rows[0];
+      if (!dbResponse) {
+        errorMessage.error = 'Dompet tidak ditemukan';
+        return res.status(status.notfound).send(errorMessage);
+      }
+      if (dbResponse.id_user != user_id) {
+        errorMessage.error = 'Dompet tidak ditemukan';
+        return res.status(status.notfound).send(errorMessage);
+      }
+      var saldo = parseFloat(dbResponse.saldo);
+      var in_awal = parseFloat(dbResponse.jumlah);
+      var newsaldo = saldo - in_awal;
+      if (newsaldo < 0) {
+        errorMessage.error = 'Saldo tidak mencukupi';
+        return res.status(status.notfound).send(errorMessage);
+      }
+      const update_on = moment(new Date());
+      const response = await pool.query(deleteInQuery, [inId]);
+      const dbResult = response.rows[0];
+      await pool.query(addSaldoQuery,[newsaldo, update_on, dbResponse.id_dompet]);
+
+      successMessage.data = {};
+      successMessage.data.message = 'Hapus pemasukan berhasil';
+      return res.status(status.success).send(successMessage);
+    } catch (error) {
+      return res.status(status.error).send(error);
+    }
+  };
 module.exports = {
   createIn,
   getAllIn,
   getIn,
+  updateIn,
 };
