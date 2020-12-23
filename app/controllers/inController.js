@@ -219,13 +219,14 @@ const getIn = async (req, res) => {
       var in_awal = parseFloat(dbResponse.jumlah);
       var newsaldo = saldo - in_awal;
       if (newsaldo < 0) {
-        errorMessage.error = 'Saldo tidak mencukupi';
-        return res.status(status.notfound).send(errorMessage);
-      }
-      const update_on = moment(new Date());
-      const response = await pool.query(deleteInQuery, [inId]);
-      const dbResult = response.rows[0];
-      await pool.query(addSaldoQuery,[newsaldo, update_on, dbResponse.id_dompet]);
+          errorMessage.error = 'Saldo tidak mencukupi';
+          return res.status(status.notfound).send(errorMessage);
+        }
+        const update_on = moment(new Date());
+        const response = await pool.query(deleteInQuery, [inId]);
+        const dbResult = response.rows[0];
+     
+      await pool.query(addSaldoQuery,[newsaldo, update_on, dbResult.id_dompet]);
 
       successMessage.data = {};
       successMessage.data.message = 'Hapus pemasukan berhasil';
@@ -239,4 +240,5 @@ module.exports = {
   getAllIn,
   getIn,
   updateIn,
+  deleteIn,
 };
