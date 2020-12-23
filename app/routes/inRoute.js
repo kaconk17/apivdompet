@@ -8,8 +8,8 @@ const router = express.Router();
 // IN Routes
 
 router.post('/in/create', verifyAuth, createIn);
-router.get('/in/getall', verifyAuth, getIn);
-router.get('/in/getin/:inId', verifyAuth, getAllIn);
+router.get('/in/getall/:dompetId', verifyAuth, getAllIn);
+router.get('/in/getin', verifyAuth, getIn);
 router.put('/in/update/:inId', verifyAuth, updateIn);
 router.delete('/in/del/:inId', verifyAuth, deleteIn);
 
