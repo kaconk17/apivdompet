@@ -1,6 +1,6 @@
 const express = require ('express');
 
-const { createDompet,getAllDompet, getDompet, updateDompet, deleteDompet } = require('../controllers/dompetController');
+const { createDompet,getAllDompet, getDompet, updateDompet, deleteDompet, getHistory } = require('../controllers/dompetController');
 const verifyAuth = require ('../middleware/verifyAuth');
 
 const router = express.Router();
@@ -10,6 +10,7 @@ const router = express.Router();
 router.post('/dompet/create', verifyAuth, createDompet);
 router.get('/dompet/getall', verifyAuth, getAllDompet);
 router.get('/dompet/getdompet', verifyAuth, getDompet);
-router.put('/dompet/:dompetId', verifyAuth, updateDompet);
-router.delete('/dompet/:dompetId', verifyAuth, deleteDompet);
+router.get('/dompet/history/:dompetId', verifyAuth, getHistory);
+router.put('/dompet/update/:dompetId', verifyAuth, updateDompet);
+router.delete('/dompet/del/:dompetId', verifyAuth, deleteDompet);
 module.exports = router;

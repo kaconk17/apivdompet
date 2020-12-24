@@ -3,7 +3,7 @@ const moment = require('moment');
 const {pool} = require('../config/connection');
 
 const {
-  empty,
+  empty, isEmpty
 } = require('../helpers/validations');
 
 const {
@@ -156,6 +156,47 @@ const getDompet = async (req, res) => {
     }
   };
 
+  const getHistory = async (req, res) => {
+    const { dompetId } = req.params;
+  const { user_id } = req.user;
+ const {tgl1, tgl2} = req.body;
+
+ if (isEmpty(dompetId)) {
+    errorMessage.error = 'ID dompet tidak valid';
+    return res.status(status.bad).send(errorMessage);
+  }
+ if (isEmpty(tgl1) || isEmpty(tgl2)) {
+    errorMessage.error = 'Periode tanggal tidak boleh kosong';
+    return res.status(status.bad).send(errorMessage);
+  }
+  const getDompetQuery = 'SELECT * FROM tb_dompet WHERE id_user = $1 AND id_dompet = $2';
+
+  const getallQuery = "SELECT id_dompet, tgl_in as tgl, ket_in as ket, jumlah as jumlah, 'IN' as jenis FROM tb_in WHERE id_dompet = $1 AND tgl_in BETWEEN $2 AND $3  UNION ALL SELECT id_dompet, tgl_out as tgl, ket_out as ket, jumlah as jumlah, 'OUT' as jenis FROM tb_out WHERE id_dompet = $1 AND tgl_out BETWEEN $2 AND $3 ORDER BY tgl ASC";
+
+  const values = [
+        dompetId,
+        tgl1,
+        tgl2
+  ];
+  try {
+    const response = await pool.query(getDompetQuery, [user_id, dompetId]);
+    const dbResponse = response.rows[0];
+    if (!dbResponse) {
+        errorMessage.error = 'Dompet tidak ditemukan';
+        return res.status(status.notfound).send(errorMessage);
+      }
+    
+    const {rows} = await pool.query(getallQuery, values);
+    const Response = rows;
+
+      successMessage.data = Response;
+      return res.status(status.success).send(successMessage);
+  } catch (error) {
+    errorMessage.error = 'Operation was not successful';
+    return res.status(status.error).send(errorMessage);
+  }
+};
+
 
 module.exports = {
   createDompet,
@@ -163,4 +204,5 @@ module.exports = {
   getDompet,
   updateDompet,
   deleteDompet,
+  getHistory,
 };
