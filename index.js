@@ -26,7 +26,7 @@ app.get('/', (request, response) => {
   })
 
 
-  app.listen(port, () => {
+  app.listen(process.env.PORT || port, () => {
     console.log(`App running on port ${port}.`)
   })
 
