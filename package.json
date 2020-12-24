@@ -1,18 +1,15 @@
 {
-  "name": "pgapi",
+  "name": "api_vdompet",
   "version": "1.0.0",
-  "description": "",
+  "description": "rest api for vdompet android app",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "create-dev-tables": "node ./app/db/dev/dbMigrate createAllTable",
-    "migrate_down": "db-migrate down -c 1 --config ./config/test_config.json",
-    "migrate_up": "db-migrate up -c 1 --config ./config/test_config.json",
-    "migrate_up_all": "db-migrate up --config ./config/test_config.json",
     "setup": "npm-run-all -p start create-dev-tables"
   },
   "keywords": [],
-  "author": "",
+  "author": "kaconk17",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
