@@ -81,12 +81,12 @@ const getAllDompet = async (req, res) => {
 };
 
 const getDompet = async (req, res) => {
-    const {id_dompet} = req.body;
+    const {dompetId} = req.params;
     const { user_id } = req.user;
    
     const getDompetQuery = 'SELECT * FROM tb_dompet WHERE id_user = $1 AND id_dompet = $2';
     try {
-      const { rows } = await pool.query(getDompetQuery, [user_id, id_dompet]);
+      const { rows } = await pool.query(getDompetQuery, [user_id, dompetId]);
       const dbResponse = rows[0];
       if (!dbResponse) {
           errorMessage.error = 'Dompet tidak ditemukan';

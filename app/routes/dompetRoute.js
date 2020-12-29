@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post('/dompet/create', verifyAuth, createDompet);
 router.get('/dompet/getall', verifyAuth, getAllDompet);
-router.get('/dompet/getdompet', verifyAuth, getDompet);
+router.get('/dompet/getdompet/:dompetId', verifyAuth, getDompet);
 router.get('/dompet/history/:dompetId', verifyAuth, getHistory);
 router.put('/dompet/update/:dompetId', verifyAuth, updateDompet);
 router.delete('/dompet/del/:dompetId', verifyAuth, deleteDompet);

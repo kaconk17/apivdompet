@@ -113,15 +113,15 @@ const getAllIn = async (req, res) => {
 };
 
 const getIn = async (req, res) => {
-    const {id_in} = req.body;
+    const {inId} = req.params;
     const { user_id } = req.user;
-    if (isEmpty(id_in)) {
+    if (isEmpty(inId)) {
         errorMessage.error = 'ID tidak boleh kosong';
         return res.status(status.bad).send(errorMessage);
       }
     const getInQuery = 'SELECT * FROM tb_in WHERE id_in = $1';
     try {
-      const { rows } = await pool.query(getInQuery, [id_in]);
+      const { rows } = await pool.query(getInQuery, [inId]);
       const inResponse = rows[0];
       if (!inResponse) {
           errorMessage.error = 'ID tidak valid';

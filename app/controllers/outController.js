@@ -120,15 +120,15 @@ const getAllOut = async (req, res) => {
 };
 
 const getOut = async (req, res) => {
-    const {id_out} = req.body;
+    const {outId} = req.params;
     const { user_id } = req.user;
-    if (isEmpty(id_out)) {
+    if (isEmpty(outId)) {
         errorMessage.error = 'ID tidak boleh kosong';
         return res.status(status.bad).send(errorMessage);
       }
     const getOutQuery = 'SELECT * FROM tb_out WHERE id_out = $1';
     try {
-      const { rows } = await pool.query(getOutQuery, [id_out]);
+      const { rows } = await pool.query(getOutQuery, [outId]);
       const outResponse = rows[0];
       if (!outResponse) {
           errorMessage.error = 'ID tidak valid';
