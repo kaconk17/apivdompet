@@ -83,9 +83,9 @@ const createOut = async (req, res) => {
    */
 
 const getAllOut = async (req, res) => {
-    const { dompetId } = req.params;
+    //const { dompetId } = req.params;
   const { user_id } = req.user;
- const {tgl1, tgl2} = req.body;
+ const {tgl1, tgl2, dompetid} = req.query;
 
  if (isEmpty(tgl1) || isEmpty(tgl2)) {
     errorMessage.error = 'Periode tanggal tidak boleh kosong';
@@ -96,12 +96,12 @@ const getAllOut = async (req, res) => {
   const getOutQuery = 'SELECT * FROM tb_out WHERE id_dompet = $1 AND tgl_out BETWEEN $2 AND $3 ORDER BY tgl_out DESC';
 
   const values = [
-        dompetId,
+        dompetid,
         tgl1,
         tgl2
   ];
   try {
-    const response = await pool.query(getDompetQuery, [user_id, dompetId]);
+    const response = await pool.query(getDompetQuery, [user_id, dompetid]);
     const dbResponse = response.rows[0];
     if (!dbResponse) {
         errorMessage.error = 'Dompet tidak ditemukan';
