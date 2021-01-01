@@ -208,7 +208,7 @@ const getOut = async (req, res) => {
   const deleteOut = async (req, res) => {
     const { outId } = req.params;
     const { user_id } = req.user;
-    const finddompetQuery = 'SELECT a.id_out , a.tgl_out , a.jumlah , b.saldo, b.id_user FROM tb_out a JOIN tb_dompet b on a.id_dompet = b.id_dompet WHERE a.id_out = $1';
+    const finddompetQuery = 'SELECT a.id_out , a.tgl_out , a.jumlah , b.saldo, b.id_user, a.id_dompet FROM tb_out a JOIN tb_dompet b on a.id_dompet = b.id_dompet WHERE a.id_out = $1';
     const deleteOutQuery = 'DELETE FROM tb_out WHERE id_out = $1 returning *';
     const addSaldoQuery = 'update tb_dompet set saldo = $1, updated_at = $2 where id_dompet  = $3 returning *';
     try {
@@ -230,13 +230,14 @@ const getOut = async (req, res) => {
           return res.status(status.notfound).send(errorMessage);
         }
         const update_on = moment(new Date());
-        const response = await pool.query(deleteOutQuery, [outId]);
-        const dbResult = response.rows[0];
+        await pool.query(deleteOutQuery, [outId]);
+        
      
-      await pool.query(addSaldoQuery,[newsaldo, update_on, dbResult.id_dompet]);
+        const response = await pool.query(addSaldoQuery,[newsaldo, update_on, dbResponse.id_dompet]);
+        const result = response.rows[0];
 
-      successMessage.data = {};
-      successMessage.data.message = 'Hapus pengeluaran berhasil';
+      successMessage.data = result;
+      //successMessage.data.message = 'Hapus pengeluaran berhasil';
       return res.status(status.success).send(successMessage);
     } catch (error) {
       return res.status(status.error).send(error);
