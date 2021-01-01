@@ -159,7 +159,7 @@ const getDompet = async (req, res) => {
   const getHistory = async (req, res) => {
     const { dompetId } = req.params;
   const { user_id } = req.user;
- const {tgl1, tgl2} = req.body;
+ const {tgl1, tgl2} = req.query;
 
  if (isEmpty(dompetId)) {
     errorMessage.error = 'ID dompet tidak valid';
