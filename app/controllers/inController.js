@@ -146,10 +146,10 @@ const getIn = async (req, res) => {
 
   const updateIn = async (req, res) => {
     const { inId } = req.params;
-    const { tgl_in, jumlah_in, ket_in } = req.body;
+    const { tgl_in, jumlah, ket_in } = req.body;
   
     const { user_id } = req.user;
-    if (empty(tgl_in, jumlah_in)) {
+    if (empty(tgl_in, jumlah)) {
       errorMessage.error = 'Tanggal & jumlah tidak boleh kosong';
       return res.status(status.bad).send(errorMessage);
     }
@@ -173,7 +173,7 @@ const getIn = async (req, res) => {
       
       var saldo = parseFloat(dbResponse.saldo);
       var in_awal = parseFloat(dbResponse.jumlah);
-      var jumlah = parseFloat(jumlah_in);
+      var jumlah = parseFloat(jumlah);
       var newsaldo = (saldo - in_awal) + jumlah;
       if (newsaldo < 0) {
         errorMessage.error = 'Jumlah saldo tidak mencukupi';
