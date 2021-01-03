@@ -20,10 +20,10 @@ const { v4:uuidv4} = require('uuid');
    */
 const createIn = async (req, res) => {
   const {
-    id_dompet, jumlah, tgl, keterangan
+    id_dompet, jumlah, tgl_in, ket_in
   } = req.body;
   const { user_id } = req.user;
-  if (isEmpty(id_dompet) || isEmpty(tgl)) {
+  if (isEmpty(id_dompet) || isEmpty(tgl_in)) {
       errorMessage.error = 'ID dompet, tanggal, jumlah tidak boleh kosong';
       return res.status(status.bad).send(errorMessage);
     }
@@ -44,9 +44,9 @@ const createIn = async (req, res) => {
   const values = [
     id,
     id_dompet,
-    tgl,
+    tgl_in,
     jum,
-    keterangan,
+    ket_in,
     created_on,
   ];
   try {
