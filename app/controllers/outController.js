@@ -179,8 +179,8 @@ const getOut = async (req, res) => {
       
       var saldo = parseFloat(dbResponse.saldo);
       var out_awal = parseFloat(dbResponse.jumlah);
-      var jumlah = parseFloat(jumlah);
-      var newsaldo = (saldo + out_awal) - jumlah;
+      var jum = parseFloat(jumlah);
+      var newsaldo = (saldo + out_awal) - jum;
       if (newsaldo < 0) {
         errorMessage.error = 'Jumlah saldo tidak mencukupi';
         return res.status(status.notfound).send(errorMessage);
@@ -189,7 +189,7 @@ const getOut = async (req, res) => {
       const update_on = moment(new Date());
       const values = [
         tgl_out,
-        jumlah,
+        jum,
         ket_out,
         update_on,
         outId,
